@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Website</title>
+    <title>GenArchitecture</title>
     <style>
         body {
             font-family: 'Helvetica', sans-serif;
             margin: 0;
             padding: 0;
+            overflow: hidden; /* Hide overflow to prevent horizontal scrollbar */
+            background-color: #f1f1f1; /* Slightly darker grey background */
         }
 
         header {
@@ -19,18 +21,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 10px; /* Small gap between header and carousel */
         }
 
         nav {
             display: flex;
             align-items: center;
-            width: 50%; /* Adjust the width as needed */
+            justify-content: center;
+            flex-grow: 1; /* Allow navigation links to take remaining space */
         }
 
         nav a {
             color: #fff;
             text-decoration: none;
-            margin: 0 20px;
+            margin: 0 20px; /* Adjust the left and right margins */
             font-size: 11.5px; /* Adjust the font size as needed */
             position: relative;
             overflow: hidden;
@@ -55,9 +59,9 @@
         .search-bar {
             display: flex;
             align-items: center;
-            width: 33%; /* Adjust the width as needed */
+            width: 25%; /* Adjust the width as needed */
             margin-left: auto;
-            
+            margin-right: 2%; /* Add a right margin to create space */
         }
 
         .search-input {
@@ -66,15 +70,99 @@
             border-radius: 15px; /* Adjust the border-radius as needed */
             background-color: #fff;
             color: #000;
-            width: 80%; /* Adjust the width as needed */
+            width: 100%; /* Adjust the width as needed */
         }
 
-        .search-btn {
-            background-color: #fff;
-            color: #000;
-            border: none;
-            border-radius: 15px; /* Adjust the border-radius as needed */
+        #carousel-container {
+            position: relative;
+            width: 100vw; /* Full width of the viewport */
+            height: calc(2 * 75px); /* Double the height of the header */
+            overflow: hidden;
+            margin-top: 10px; /* Small gap between header and carousel */
+        }
+
+        #image-carousel {
+            display: flex;
+            width: 500%; /* 5 images in total (5 * 100%) */
+            height: 100%; /* Full height of the #carousel-container */
+            transition: transform 1s ease-in-out;
+            position: relative;
+        }
+
+        .carousel-image {
+            width: 100vw; /* Full width of the viewport */
+            height: 100%; /* Full height of the #carousel-container */
+            object-fit: cover;
+        }
+
+        #prev-btn, #next-btn {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            font-size: 2vw; /* Adjust the font size as needed */
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.1); /* Much less opaque */
+            padding: 10px;
             cursor: pointer;
+            border: none;
+            outline: none;
+            z-index: 1; /* Ensure the arrows are above the rectangles */
+            height: 100%; /* Stretch the entire height of the carousel */
+            transition: transform 0.2s ease-in-out;
+        }
+
+        #prev-btn:hover, #next-btn:hover {
+            transform: scale(1.1); /* Grow slightly larger on hover */
+        }
+
+        #prev-btn {
+            left: 0;
+        }
+
+        #next-btn {
+            right: 0;
+        }
+
+        .black-rectangle-container {
+            display: flex;
+            margin-top: 10px; /* Same separation as carousel from the header */
+            margin-bottom: 10px; /* Same separation as carousel from the next element */
+            opacity: 1; /* Set opacity to 100% */
+        }
+
+        .black-rectangle {
+            background-color: #000;
+            height: calc(2 * 75px / 3); /* Two-thirds of the header's height */
+            width: 16.66%; /* 1/6th of the viewport width */
+            margin-right: 1%; /* Slightly closer together */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .black-rectangle a {
+            color: #fff;
+            text-decoration: none;
+            font-family: 'Helvetica', sans-serif;
+            text-transform: uppercase;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .black-rectangle a::after {
+            content: '';
+            display: block;
+            height: 2px;
+            width: 0;
+            background-color: #fff;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .black-rectangle a:hover::after {
+            width: 100%;
         }
     </style>
 </head>
@@ -88,12 +176,62 @@
             <a href="#">Contact us</a>
         </nav>
 
-        <div class="search-bar">
-            <input type="text" class="search-input" placeholder="Search">
-        </div>
+        <form class="search-bar" onsubmit="search()">
+            <input type="text" class="search-input" placeholder="Search" id="searchInput">
+        </form>
     </header>
 
-    <!-- Your website content goes here -->
+    <div id="carousel-container">
+        <button id="prev-btn" onclick="prevSlide()">❮</button>
+        <div id="image-carousel">
+            <img src="image1.jpg" class="carousel-image" alt="Image 1">
+            <img src="image2.jpg" class="carousel-image" alt="Image 2">
+            <img src="image3.jpg" class="carousel-image" alt="Image 3">
+            <img src="image4.jpg" class="carousel-image" alt="Image 4">
+            <img src="image5.jpg" class="carousel-image" alt="Image 5">
+        </div>
+        <button id="next-btn" onclick="nextSlide()">❯</button>
+    </div>
 
+    <div class="black-rectangle-container">
+        <div class="black-rectangle">
+            <a href="#">BRUTALISM</a>
+        </div>
+        <div class="black-rectangle">
+            <a href="#">MID-CENTURY</a>
+        </div>
+        <div class="black-rectangle">
+            <a href="#">DECONSTRUCTIVISM</a>
+        </div>
+    </div>
+
+    <script>
+        var currentIndex = 0;
+        var totalSlides = document.querySelectorAll('.carousel-image').length;
+
+        function showSlide(index) {
+            currentIndex = (index + totalSlides) % totalSlides;
+            var offset = currentIndex * 100;
+            document.getElementById('image-carousel').style.transform = 'translateX(-' + offset + 'vw)';
+        }
+
+        function nextSlide() {
+            showSlide(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentIndex - 1);
+        }
+
+        function search() {
+            var searchInput = document.getElementById('searchInput').value;
+            // Add your search logic here
+            console.log('Searching for: ' + searchInput);
+            // Prevent form submission
+            return false;
+        }
+
+        setInterval(nextSlide, 7000); // Rotate images every 7 seconds
+    </script>
 </body>
 </html>
