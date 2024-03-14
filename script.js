@@ -21,4 +21,4 @@ function search() {
     return false;
 }
 
-setInterval(nextSlide, 7000);
+setInterval(nextSlide, 7000)
